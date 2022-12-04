@@ -2,6 +2,7 @@
 #include "./ui_main_window.h"
 #include "ui_movie_search_widget.h"
 #include <QStandardItemModel>
+
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), networkAccessManager(new QNetworkAccessManager(this)) {
     ui->setupUi(this);
