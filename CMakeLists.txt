@@ -16,6 +16,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 # 配置Module地址
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
+find_package(QTAV REQUIRED COMPONENTS QtAV QtAVWidgets1)
 
 # ffmpeg 配置
 # 配置动态链接库
@@ -35,6 +36,12 @@ set(PROJECT_SOURCES
         movie_search_widget.cpp
         movie_search_widget.h
         movie_search_widget.ui
+        player_window.h
+        player_window.cpp
+        player_window.ui
+        control_panel.h
+        control_panel.cpp
+        control_panel.ui
         geektv_constants.h
         resource.qrc
 )

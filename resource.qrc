@@ -2,4 +2,13 @@
     <qresource prefix="/res/image">
         <file>resource/image/loading.png</file>
     </qresource>
+    <qresource prefix="/res/icon">
+        <file>resource/icon/full_screen.png</file>
+        <file>resource/icon/off_screen.png</file>
+        <file>resource/icon/pause.png</file>
+        <file>resource/icon/play.png</file>
+        <file>resource/icon/volume_mute.png</file>
+        <file>resource/icon/volume_notice.png</file>
+        <file>resource/icon/source_list.png</file>
+    </qresource>
 </RCC>
