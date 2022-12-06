@@ -18,6 +18,9 @@ public:
     explicit MovieSearchWidget(const Movie &movie, QWidget *parent = nullptr);
     ~MovieSearchWidget();
 
+    const Movie* getMovieRef() const {
+        return &movie;
+    }
 private:
     Ui::MovieSearchWidget *ui;
     Movie movie;

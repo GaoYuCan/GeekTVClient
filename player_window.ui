@@ -19,6 +19,14 @@
   <property name="windowTitle">
    <string>PlayerWindow</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">* {
+	background-color: #fff;
+}
+#graphicsView {
+	background-color: #000;
+}</string>
+  </property>
   <widget class="QWidget" name="centralwidget">
    <property name="acceptDrops">
     <bool>true</bool>
@@ -40,20 +48,24 @@
      <number>0</number>
     </property>
     <item>
-     <layout class="QVBoxLayout" name="verticalLayout"/>
-    </item>
-    <item>
-     <widget class="QGraphicsView" name="graphicsView">
-      <property name="mouseTracking">
-       <bool>true</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;background:black;</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
-      </property>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QGraphicsView" name="graphicsView">
+        <property name="mouseTracking">
+         <bool>true</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="lineWidth">
+         <number>1</number>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </item>
     <item>
      <widget class="QTreeView" name="sourcesTree">
@@ -62,6 +74,9 @@
         <width>250</width>
         <height>16777215</height>
        </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
       </property>
      </widget>
     </item>
