@@ -16,7 +16,8 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 # 配置Module地址
 set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/CMake)
-find_package(QTAV REQUIRED COMPONENTS QtAV QtAVWidgets1)
+
+find_package(QTAV REQUIRED COMPONENTS QtAV QtAVWidgets)
 
 # ffmpeg 配置
 # 配置动态链接库
@@ -69,7 +70,7 @@ else()
     endif()
 endif()
 
-target_link_libraries(GeekTV PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network)
+target_link_libraries(GeekTV PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Network ${QTAV_LIBRARIES} ${QTAVWIDGETS_LIBRARIES} )
 
 set_target_properties(GeekTV PROPERTIES
     MACOSX_BUNDLE_GUI_IDENTIFIER my.example.com

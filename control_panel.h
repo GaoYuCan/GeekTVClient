@@ -14,7 +14,7 @@ class ControlPanel : public QWidget
 public:
     explicit ControlPanel(QWidget *parent = nullptr);
     ~ControlPanel();
-
+    Ui::ControlPanel * getUI() const {return ui;};
 private:
     Ui::ControlPanel *ui;
 };

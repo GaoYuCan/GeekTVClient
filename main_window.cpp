@@ -69,21 +69,28 @@ void MainWindow::on_searchButton_clicked() {
 void MainWindow::updateSearchResult(const QVector<Movie> &movies) {
     static QVector<QListWidgetItem*> previousSearchResult;
     for (QListWidgetItem *item : previousSearchResult) {
-        auto widget = ui->mianList->itemWidget(item);
-        ui->mianList->removeItemWidget(item);
+        auto widget = ui->mainList->itemWidget(item);
+        ui->mainList->removeItemWidget(item);
         delete widget;
     }
-    ui->mianList->clear();
+    ui->mainList->clear();
     previousSearchResult.clear(); // 清空
     for(auto &movie : movies) {
-       auto item =  new QListWidgetItem(ui->mianList, 0);
+       auto item =  new QListWidgetItem(ui->mainList, 0);
        item->setData(Qt::UserRole, movie.key);
-       auto itemSize = QSize(ui->mianList->width() - 21, 170);
+       auto itemSize = QSize(ui->mainList->width() - 21, 170);
        item->setSizeHint(itemSize);
-       auto searchMovieView = new MovieSearchWidget(movie, ui->mianList);
+       auto searchMovieView = new MovieSearchWidget(movie, ui->mainList);
        searchMovieView->setFixedSize(itemSize);
-       ui->mianList->setItemWidget(item, searchMovieView);
+       ui->mainList->setItemWidget(item, searchMovieView);
        previousSearchResult += item;
     }
+    connect(ui->mainList, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
+        MovieSearchWidget *widget = static_cast<MovieSearchWidget *>(ui->mainList->itemWidget(item));
+        const Movie* m = widget->getMovieRef();
+        PlayerWindow* w = PlayerWindow::getPlayerWindowInstance();
+        w->open(m->title, m->key);
+        w->show();
+    });
 }
 

@@ -7,21 +7,27 @@
     <x>0</x>
     <y>0</y>
     <width>584</width>
-    <height>57</height>
+    <height>65</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">PushButton{
+	outline: none;
+	border: none;
+}</string>
+  </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <property name="spacing">
-    <number>0</number>
+    <number>4</number>
    </property>
    <property name="leftMargin">
     <number>0</number>
    </property>
    <property name="topMargin">
-    <number>0</number>
+    <number>4</number>
    </property>
    <property name="rightMargin">
     <number>0</number>
@@ -30,7 +36,7 @@
     <number>0</number>
    </property>
    <item>
-    <widget class="QSlider" name="horizontalSlider">
+    <widget class="QSlider" name="slider_progress">
      <property name="maximum">
       <number>100</number>
      </property>
@@ -71,7 +77,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_play">
+      <widget class="QPushButton" name="btn_play">
        <property name="text">
         <string/>
        </property>
@@ -81,14 +87,17 @@
        </property>
        <property name="iconSize">
         <size>
-         <width>24</width>
-         <height>24</height>
+         <width>30</width>
+         <height>30</height>
         </size>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_voice">
+      <widget class="QPushButton" name="btn_volume">
        <property name="text">
         <string/>
        </property>
@@ -102,10 +111,13 @@
          <height>24</height>
         </size>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QSlider" name="horizontalSlider_voice">
+      <widget class="QSlider" name="slider_volume">
        <property name="minimumSize">
         <size>
          <width>100</width>
@@ -124,7 +136,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalSpacer1">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -137,7 +149,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_full">
+      <widget class="QPushButton" name="btn_full">
        <property name="text">
         <string/>
        </property>
@@ -151,10 +163,13 @@
          <height>24</height>
         </size>
        </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButton_list">
+      <widget class="QPushButton" name="btn_list">
        <property name="text">
         <string/>
        </property>
@@ -167,6 +182,9 @@
          <width>24</width>
          <height>24</height>
         </size>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
