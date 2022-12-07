@@ -1,12 +1,12 @@
 #include "main_window.h"
 #include "./ui_main_window.h"
 #include "ui_movie_search_widget.h"
-#include <QStandardItemModel>
+
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow), networkAccessManager(new QNetworkAccessManager(this)) {
     ui->setupUi(this);
-    connect(networkAccessManager, &QNetworkAccessManager::finished, [](QNetworkReply *reply) {
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this, [](QNetworkReply *reply) {
         reply->deleteLater();
     });
 
@@ -33,7 +33,7 @@ void MainWindow::on_searchButton_clicked() {
     // 构造请求对象，并发送
     QNetworkRequest request(url);
     QNetworkReply* reply = networkAccessManager->get(request);
-    connect(reply, &QNetworkReply::readyRead, [this, reply](){
+    connect(reply, &QNetworkReply::readyRead, this, [this, reply](){
         auto bytes = reply->readAll();
         QJsonParseError error;
         auto doc = QJsonDocument::fromJson(bytes, &error);
@@ -46,6 +46,7 @@ void MainWindow::on_searchButton_clicked() {
         qDebug() << "code = " << respJson["code"] << ", msg = " << respJson["msg"]  << ", data = " << respJson["data"] << Qt::endl;
         if(respJson["code"].toInt() != 0) {
              QMessageBox::information(nullptr, "抱歉", "搜索失败，" + respJson["msg"].toString());
+             return;
         }
         // 解析 JSON 获取列表
         auto moviesJsonArray = respJson["data"].toArray();

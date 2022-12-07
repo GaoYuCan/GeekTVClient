@@ -6,7 +6,7 @@ MovieSearchWidget::MovieSearchWidget(const Movie &movie, QWidget *parent) :
 {
     ui->setupUi(this);
     // 设置 reply 的清理
-    connect(networkAccessManager, &QNetworkAccessManager::finished, [](QNetworkReply *reply) {
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this, [](QNetworkReply *reply) {
         reply->deleteLater();
     });
     // 设置数据
@@ -25,7 +25,7 @@ MovieSearchWidget::MovieSearchWidget(const Movie &movie, QWidget *parent) :
         // 加载网络图片，并缓存
         QNetworkRequest request(QUrl(this->movie.coverURL));
         auto reply = networkAccessManager->get(request);
-        connect(reply, &QNetworkReply::finished, [this, reply, coverPath]() {
+        connect(reply, &QNetworkReply::finished, this, [this, reply, coverPath]() {
             QFile coverFile(coverPath);
             auto content = reply->readAll();
             if(coverFile.open(QIODevice::WriteOnly)) {

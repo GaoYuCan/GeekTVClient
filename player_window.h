@@ -5,15 +5,15 @@
 #include <QtAV/QtAV>
 #include <QtAVWidgets/QtAVWidgets>
 #include <QtAV/AVPlayer.h>
-#include <QtNetwork/QNetworkAccessManager>
-#include <QtNetwork/QNetworkReply>
-#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork>
 #include <QDebug>
 #include <QTimer>
 #include <QDesktopWidget>
 #include <QShortcut>
 #include <QtMath>
+#include <QMessageBox>
 #include "control_panel.h"
+#include "geektv_constants.h"
 
 namespace Ui {
 class PlayerWindow;

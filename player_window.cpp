@@ -40,7 +40,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
         controlerUI->slider_volume->setToolTip(QString::number(floor(volume * 100)));
     });
     connect(player->audio(),  &QtAV::AudioOutput::muteChanged, this, [controlerUI](bool isMute) {
-        if(isMute) {
+        if(!isMute) {
             controlerUI->btn_volume->setIcon(QIcon(":/res/icon/resource/icon/volume_notice.png"));
         }else {
             controlerUI->btn_volume->setIcon(QIcon(":/res/icon/resource/icon/volume_mute.png"));
@@ -88,7 +88,7 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
 
 
     // 设置 reply 的清理
-    connect(networkAccessManager, &QNetworkAccessManager::finished, [](QNetworkReply *reply) {
+    connect(networkAccessManager, &QNetworkAccessManager::finished, this, [](QNetworkReply *reply) {
         reply->deleteLater();
     });
 }
@@ -105,6 +105,38 @@ PlayerWindow* PlayerWindow::getPlayerWindowInstance() {
 void PlayerWindow::open(QString title, QString key) {
     setWindowTitle(title);
     // 判断当前是否正在播放中
+    if(player->isPlaying()) {
+        // 停止播放
+        player->stop();
+    }
+    // 构造搜索URL
+    QUrlQuery query;
+    query.addQueryItem("key", key);
+    QUrl url(QString(GeekTVConstants::LOCAL_SERVER_DOMAIN) + "/parse_url");
+    url.setQuery(query);
+    // 构造请求对象，并发送
+    QNetworkRequest request(url);
+    QNetworkReply* reply = networkAccessManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [this, reply](){
+        auto bytes = reply->readAll();
+        QJsonParseError error;
+        auto doc = QJsonDocument::fromJson(bytes, &error);
+        if(error.error != QJsonParseError::NoError) {
+            qDebug() << "JSON解析失败，error = " << error.errorString() << Qt::endl;
+            return;
+        }
+        // 是否成功
+        auto respJson = doc.object();
+        qDebug() << "code = " << respJson["code"] << ", msg = " << respJson["msg"]  << ", data = " << respJson["data"] << Qt::endl;
+        if(respJson["code"].toInt() != 0) {
+             QMessageBox::information(nullptr, "抱歉", "解析视频失败，" + respJson["msg"].toString());
+             return;
+        }
+        auto m3u8URL = respJson["data"].toString();
+        qDebug() << "play url = " << m3u8URL << Qt::endl;
+        player->play(m3u8URL);
+    });
+
 }
 
 PlayerWindow::~PlayerWindow() {
@@ -159,7 +191,6 @@ void PlayerWindow::setCurTimeProgress(qint64 cur) {
 
 void PlayerWindow::enterFullScreen_triggered() {
     showFullScreen();
-
 }
 
 void PlayerWindow::exitFullScreen_triggered() {
@@ -184,6 +215,7 @@ void PlayerWindow::volumeUp_triggered() {
     vol += 0.01;
     player->audio()->setVolume(vol);
 }
+
 void PlayerWindow::volumeDown_triggered() {
     // 获取当前音量
     qreal vol = player->audio()->volume();
@@ -198,12 +230,27 @@ void PlayerWindow::volumeDown_triggered() {
 void PlayerWindow::toggleVolumeMute_triggered() {
     player->audio()->setMute(!player->audio()->isMute());
 }
+
 void PlayerWindow::playOrPause_triggered() {
+    if(player->state() == player->PlayingState) {
+        player->pause(true);
+    }else if(player->state() == player->PausedState) {
+        player->pause(false);
+    } else if(player->state() == player->StoppedState) {
+        player->play();
+    }
 }
+
 void PlayerWindow::seekForword_triggered() {
         player->seekForward();
 };
 void PlayerWindow::seekBackword_triggered() {
         player->seekBackward();
 };
-void PlayerWindow::showOrHideSourcesList_triggered() {};
+void PlayerWindow::showOrHideSourcesList_triggered() {
+    if(ui->sourcesTree->isHidden()) {
+        ui->sourcesTree->show();
+    }else {
+        ui->sourcesTree->hide();
+    }
+};

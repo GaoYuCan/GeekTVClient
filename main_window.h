@@ -9,6 +9,7 @@
 #include "geektv_constants.h"
 #include "movie_search_widget.h"
 #include "player_window.h"
+#include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
