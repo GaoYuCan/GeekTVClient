@@ -19,7 +19,7 @@ MovieSearchWidget::MovieSearchWidget(const Movie &movie, QWidget *parent) :
     // 判断是否存在本地缓存
     auto coverPath = GeekTVConstants::coverCacheDir() + "/" + movie.key;
     QFileInfo coverFileInfo(coverPath);
-    if (coverFileInfo.isFile()) {
+    if (coverFileInfo.isFile() && coverFileInfo.size() > 0x10) {
         ui->cover->setIcon(QIcon(coverPath));
     }else {
         // 加载网络图片，并缓存

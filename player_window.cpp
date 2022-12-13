@@ -63,6 +63,8 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
         if(player->statistics().video_only.width != 0 || player->statistics().video_only.height != 0) {
             resize(player->statistics().video_only.width, player->statistics().video_only.height);
         }
+        // 获取音量
+        controlerUI->slider_volume->setValue(player->audio()->volume() * 100.0);
 
     });
     connect(player, &QtAV::AVPlayer::stateChanged, this, [controlerUI](QtAV::AVPlayer::State state) {
@@ -78,14 +80,19 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     connect(controlerUI->btn_full, &QPushButton::pressed, this, &PlayerWindow::fullOrOffScreen_triggered);
     connect(controlerUI->btn_volume,&QPushButton::pressed, this, &PlayerWindow::toggleVolumeMute_triggered);
     connect(controlerUI->btn_list,&QPushButton::pressed, this, &PlayerWindow::showOrHideSourcesList_triggered);
-    connect(controlerUI->slider_progress, &QSlider::sliderPressed, this, [this]() {});
+    connect(controlerUI->slider_progress, &QSlider::sliderPressed, this, [this, controlerUI]() {});
     connect(controlerUI->slider_progress, &QSlider::sliderMoved, this, [this](int position) {
          this->player->setPosition(position);
     });
     connect(controlerUI->slider_progress, &QSlider::sliderReleased, this, [this, controlerUI]() {
         this->player->setPosition(controlerUI->slider_progress->value());
     });
-
+    connect(controlerUI->slider_volume, &QSlider::sliderMoved, this, [this](int position) {
+        this->player->audio()->setVolume(position / 100.0);
+    });
+    connect(controlerUI->slider_volume, &QSlider::sliderReleased, this, [this, controlerUI]() {
+        this->player->audio()->setVolume(controlerUI->slider_volume->value() / 100.0);
+    });
 
     // 设置 reply 的清理
     connect(networkAccessManager, &QNetworkAccessManager::finished, this, [](QNetworkReply *reply) {
@@ -103,13 +110,14 @@ PlayerWindow* PlayerWindow::getPlayerWindowInstance() {
 }
 
 void PlayerWindow::open(QString title, QString key) {
+    this->curKey = key;
     setWindowTitle(title);
     // 判断当前是否正在播放中
     if(player->isPlaying()) {
         // 停止播放
         player->stop();
     }
-    // 构造搜索URL
+    // 构造解析链接URL
     QUrlQuery query;
     query.addQueryItem("key", key);
     QUrl url(QString(GeekTVConstants::LOCAL_SERVER_DOMAIN) + "/parse_url");
@@ -137,6 +145,46 @@ void PlayerWindow::open(QString title, QString key) {
         player->play(m3u8URL);
     });
 
+    // 获取选集列表
+    fetchSourceList();
+}
+
+void PlayerWindow::fetchSourceList() {
+    // 构造解析剧集URL
+    QUrlQuery query;
+    query.addQueryItem("key", this->curKey);
+    QUrl url(QString(GeekTVConstants::LOCAL_SERVER_DOMAIN) + "/parse_series");
+    url.setQuery(query);
+    // 构造请求对象，并发送
+    QNetworkRequest request(url);
+    QNetworkReply* reply = networkAccessManager->get(request);
+    connect(reply, &QNetworkReply::finished, this, [reply, this]() {
+        auto bytes = reply->readAll();
+        QJsonParseError error;
+        auto doc = QJsonDocument::fromJson(bytes, &error);
+        if(error.error != QJsonParseError::NoError) {
+            qDebug() << "JSON解析失败，error = " << error.errorString() << Qt::endl;
+            return;
+        }
+        // 是否成功
+        auto respJson = doc.object();
+        qDebug() << "code = " << respJson["code"] << ", msg = " << respJson["msg"]  << ", data = " << respJson["data"] << Qt::endl;
+        if(respJson["code"].toInt() != 0) {
+             QMessageBox::information(nullptr, "抱歉", "解析视频选集失败，" + respJson["msg"].toString());
+             return;
+        }
+        // 解析剧集列表
+        auto sourceList = respJson["data"].toArray();
+        for(auto sourceRef: sourceList) {
+            auto source = sourceRef.toObject();
+            QString sourceName = source["name"].toString();
+            auto playList = source["playlist"].toArray();
+            for(auto itemRef : playList) {
+                auto item = itemRef.toObject();
+
+            }
+        }
+    });
 }
 
 PlayerWindow::~PlayerWindow() {
@@ -146,6 +194,13 @@ PlayerWindow::~PlayerWindow() {
     delete controler;
     delete videoItem;
     delete scene;
+}
+
+void PlayerWindow::closeEvent(QCloseEvent* event) {
+    if(this->player->isPlaying()) {
+        // 停止播放
+        this->player->stop();
+    }
 }
 
 void PlayerWindow::resizeEvent(QResizeEvent* event) {

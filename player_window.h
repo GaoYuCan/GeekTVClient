@@ -31,12 +31,15 @@ public:
     static PlayerWindow* getPlayerWindowInstance();
 protected:
     void resizeEvent(QResizeEvent* event);
+    void closeEvent(QCloseEvent* event);
 private:
     // 属性
     Ui::PlayerWindow *ui;
     bool isShowingSources;
     bool isPlaying;
     int volume;
+    QString curKey;
+    QString nextKey;
     QtAV::AVPlayer* player;
     QGraphicsScene* scene;
     QtAV::GraphicsItemRenderer* videoItem;
@@ -50,6 +53,7 @@ private:
     // 普通函数
     void setCurTimeProgress(qint64 cur);
     bool eventFilter(QObject* obj, QEvent* event);
+    void fetchSourceList();
     // 静态变量
     static PlayerWindow* playerWindow;
 
