@@ -63,7 +63,9 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
         controlerUI->slider_progress->setRange(0, player->duration());
         // 根据视频的大小适配播放器界面大小
         if(player->statistics().video_only.width != 0 || player->statistics().video_only.height != 0) {
-            resize(player->statistics().video_only.width, player->statistics().video_only.height);
+            // int w = player->statistics().video_only.width + (this->ui->sourcesTree->isHidden() ? 0 : this->ui->sourcesTree->width());
+            // resize(w, player->statistics().video_only.height + controler->height());
+            videoItem->resizeRenderer(ui->graphicsView->size());
         }
         // 获取音量
         controlerUI->slider_volume->setValue(player->audio()->volume() * 100.0);
@@ -96,6 +98,15 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
         this->player->audio()->setVolume(controlerUI->slider_volume->value() / 100.0);
     });
 
+    // 点击切换剧集
+    connect(ui->sourcesTree, &QTreeView::clicked, this, [this](const QModelIndex &index) {
+        QVariant data = index.data(Qt::UserRole + 1);
+        if(!data.isValid()) {
+            return;
+        }
+        PlayerWindow::open(nullptr, data.toString());
+    });
+
     // 设置 reply 的清理
     connect(networkAccessManager, &QNetworkAccessManager::finished, this, [](QNetworkReply *reply) {
         reply->deleteLater();
@@ -113,7 +124,9 @@ PlayerWindow* PlayerWindow::getPlayerWindowInstance() {
 
 void PlayerWindow::open(QString title, QString key) {
     this->curKey = key;
-    setWindowTitle(title);
+    if(!title.isNull()) {
+        setWindowTitle(title);
+    }
     // 判断当前是否正在播放中
     if(player->isPlaying()) {
         // 停止播放
@@ -186,7 +199,7 @@ void PlayerWindow::fetchSourceList() {
             auto source = sourceRef.toObject();
             QString sourceName = source["name"].toString();
             auto sourceItem = new QStandardItem(sourceName);
-            sourceItem->setData(sourceName, Qt::UserRole + 1);
+            sourceItem->setData(sourceName, Qt::UserRole);
             sourceItem->setEditable(false);
             sourceItemList << sourceItem;
             QList<QStandardItem *> seriesList;
@@ -336,5 +349,7 @@ void PlayerWindow::showOrHideSourcesList_triggered() {
         ui->sourcesTree->show();
     }else {
         ui->sourcesTree->hide();
+        ui->graphicsView->resize(ui->graphicsView->width() + ui->sourcesTree->width(), ui->graphicsView->height());
     }
+    videoItem->resizeRenderer(ui->graphicsView->size());
 };
