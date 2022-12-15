@@ -12,6 +12,7 @@
 #include <QShortcut>
 #include <QtMath>
 #include <QMessageBox>
+#include <QStandardItem>
 #include "control_panel.h"
 #include "geektv_constants.h"
 
@@ -47,7 +48,7 @@ private:
     ControlPanel* controler;
     QDesktopWidget* desktop;
     QNetworkAccessManager *networkAccessManager;
-
+    QStandardItemModel *sourceTreeModel;
     // 构造函数
     explicit PlayerWindow(QWidget *parent = nullptr);
     // 普通函数

@@ -12,7 +12,9 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
     ui->verticalLayout->addWidget(controler);
     // 注册事件监听
     qApp->installEventFilter(this);
-
+    // 设置选集树
+    sourceTreeModel = new QStandardItemModel(ui->sourcesTree);
+    ui->sourcesTree->setModel(sourceTreeModel);
     // 设置快捷键
     // 暂停播放
     connect(new QShortcut(QKeySequence(Qt::Key_Space), this), &QShortcut::activated, this, &PlayerWindow::playOrPause_triggered);
@@ -150,6 +152,9 @@ void PlayerWindow::open(QString title, QString key) {
 }
 
 void PlayerWindow::fetchSourceList() {
+    // 清除并设置头
+    sourceTreeModel->clear();
+    sourceTreeModel->setHorizontalHeaderLabels(QStringList() << "剧集");
     // 构造解析剧集URL
     QUrlQuery query;
     query.addQueryItem("key", this->curKey);
@@ -168,21 +173,45 @@ void PlayerWindow::fetchSourceList() {
         }
         // 是否成功
         auto respJson = doc.object();
-        qDebug() << "code = " << respJson["code"] << ", msg = " << respJson["msg"]  << ", data = " << respJson["data"] << Qt::endl;
+        // qDebug() << "code = " << respJson["code"] << ", msg = " << respJson["msg"]  << ", data = " << respJson["data"] << Qt::endl;
         if(respJson["code"].toInt() != 0) {
              QMessageBox::information(nullptr, "抱歉", "解析视频选集失败，" + respJson["msg"].toString());
              return;
         }
         // 解析剧集列表
+        bool pre = false;
         auto sourceList = respJson["data"].toArray();
         for(auto sourceRef: sourceList) {
+             QList<QStandardItem*> sourceItemList;
             auto source = sourceRef.toObject();
             QString sourceName = source["name"].toString();
+            auto sourceItem = new QStandardItem(sourceName);
+            sourceItem->setData(sourceName, Qt::UserRole + 1);
+            sourceItem->setEditable(false);
+            sourceItemList << sourceItem;
+            QList<QStandardItem *> seriesList;
             auto playList = source["playlist"].toArray();
             for(auto itemRef : playList) {
                 auto item = itemRef.toObject();
-
+                auto key = item["key"].toString();
+                auto title = item["title"].toString();
+                auto seriesItem = new QStandardItem(title);
+                seriesItem->setData(key, Qt::UserRole + 1);
+                seriesItem->setEditable(false);
+                // 当前的
+                if(key == this->curKey) {
+                    seriesItem->setCheckState(Qt::Checked);
+                    pre = true;
+                }
+                // 下一集
+                if(pre) {
+                    pre = false;
+                    this->nextKey = key;
+                }
+                seriesList << seriesItem;
             }
+            sourceItem->appendRows(seriesList);
+            sourceTreeModel->appendRow(sourceItemList);
         }
     });
 }

@@ -10,6 +10,13 @@ MainWindow::MainWindow(QWidget *parent)
         reply->deleteLater();
     });
 
+    connect(ui->mainList, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
+        MovieSearchWidget *widget = static_cast<MovieSearchWidget *>(ui->mainList->itemWidget(item));
+        const Movie* m = widget->getMovieRef();
+        PlayerWindow* w = PlayerWindow::getPlayerWindowInstance();
+        w->open(m->title, m->key);
+        w->show();
+    });
 }
 
 MainWindow::~MainWindow() {
@@ -86,12 +93,5 @@ void MainWindow::updateSearchResult(const QVector<Movie> &movies) {
        ui->mainList->setItemWidget(item, searchMovieView);
        previousSearchResult += item;
     }
-    connect(ui->mainList, &QListWidget::itemClicked, this, [this](QListWidgetItem *item) {
-        MovieSearchWidget *widget = static_cast<MovieSearchWidget *>(ui->mainList->itemWidget(item));
-        const Movie* m = widget->getMovieRef();
-        PlayerWindow* w = PlayerWindow::getPlayerWindowInstance();
-        w->open(m->title, m->key);
-        w->show();
-    });
 }
 
