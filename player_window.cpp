@@ -56,6 +56,9 @@ PlayerWindow::PlayerWindow(QWidget *parent) :
             controlerUI->slider_progress->setValue(position);
         }
         setCurTimeProgress(position);
+        if(player->duration() - position < 100) {
+            PlayerWindow::open(nullptr, nextKey);
+        }
     });
 
     connect(player, &QtAV::AVPlayer::started, this, [this, controlerUI]() {
@@ -211,15 +214,15 @@ void PlayerWindow::fetchSourceList() {
                 auto seriesItem = new QStandardItem(title);
                 seriesItem->setData(key, Qt::UserRole + 1);
                 seriesItem->setEditable(false);
-                // 当前的
-                if(key == this->curKey) {
-                    seriesItem->setCheckState(Qt::Checked);
-                    pre = true;
-                }
                 // 下一集
                 if(pre) {
                     pre = false;
                     this->nextKey = key;
+                }
+                // 当前的
+                if(key == this->curKey) {
+                    seriesItem->setCheckState(Qt::Checked);
+                    pre = true;
                 }
                 seriesList << seriesItem;
             }
